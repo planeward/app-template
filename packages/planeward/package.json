@@ -1,0 +1,43 @@
+{
+  "name": "@repo/planeward",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "prettier": "@repo/prettier-config/next",
+  "exports": {
+    "./client": "./src/client.tsx",
+    "./server": "./src/server.ts",
+    "./env": "./src/env.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write ."
+  },
+  "dependencies": {
+    "@planeward/sdk": "catalog:",
+    "@t3-oss/env-core": "^0.13.11",
+    "server-only": "^0.0.1",
+    "zod": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/prettier-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@typescript/native": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

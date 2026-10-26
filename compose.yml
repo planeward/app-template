@@ -1,0 +1,24 @@
+# Local development only. Postgres runs on host port 5433 so it does not clash
+# with a Planeward checkout on 5432.
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: planeward_app
+      POSTGRES_PASSWORD: planeward_app
+      POSTGRES_DB: planeward_app
+    ports:
+      - "5433:5432"
+    volumes:
+      # Postgres 18 images keep data under /var/lib/postgresql/<major>/.
+      - postgres-data:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planeward_app -d planeward_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres-data:

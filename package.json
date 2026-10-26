@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "planeward-app-template",
+  "private": true,
+  "type": "module",
+  "prettier": "@repo/prettier-config/base",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format:check": "turbo run format:check",
+    "format:write": "turbo run format:write",
+    "format:root": "prettier --check \"*.{md,json,yaml,yml}\" \"docs/**/*.md\" \".github/**/*.yml\"",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:*",
+    "@typescript/native": "catalog:",
+    "prettier": "catalog:",
+    "turbo": "^2.11.10",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.19.0"
+}

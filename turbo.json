@@ -1,0 +1,58 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalPassThroughEnv": [
+    "CI",
+    "SKIP_ENV_VALIDATION",
+    "NEXT_TELEMETRY_DISABLED"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env"],
+      "env": [
+        "NODE_ENV",
+        "DATABASE_URL",
+        "PLANEWARD_APP_ID",
+        "PLANEWARD_APP_SECRET",
+        "PLANEWARD_WEBHOOK_SECRET",
+        "PLANEWARD_BASE_URL"
+      ]
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": [
+        "ALLOWED_DEV_ORIGINS",
+        "NODE_ENV",
+        "DATABASE_URL",
+        "PLANEWARD_APP_ID",
+        "PLANEWARD_APP_SECRET",
+        "PLANEWARD_WEBHOOK_SECRET",
+        "PLANEWARD_BASE_URL"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "env": ["DATABASE_URL"]
+    },
+    "format:check": {},
+    "format:write": {
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false,
+      "passThroughEnv": ["DATABASE_URL"]
+    },
+    "db:migrate": {
+      "cache": false,
+      "passThroughEnv": ["DATABASE_URL"]
+    }
+  }
+}
