@@ -4,12 +4,15 @@ Conventions for AI agents working in this repo (a Planeward Community App templa
 
 ## Layout
 
-- `apps/web`: the Next.js 16 app (port 3005). It owns its database: Drizzle schema, client and env in `src/db`, migrations in `drizzle/`.
+- `apps/web`: the Next.js 16 app (port 3005). It owns its database: Drizzle schema, client and env in `src/db`, migrations in `drizzle/`, local Postgres in `compose.yml`. Its env lives in `apps/web/.env` (Next.js loads it; there is no root `.env`), and `vercel.json` deploys it as its own Vercel project.
+- Each folder in `apps/` is a separate Planeward app; nothing app-specific belongs at the repo root. Adding one: `docs/adding-an-app.md`.
 - `packages/planeward`: `@repo/planeward` (`/client`, `/server`, `/env`).
 - `packages/ui`: `@repo/ui` (shadcn/ui + Tailwind v4).
 - `packages/{typescript,eslint,prettier}-config`: shared configs.
 
 Internal packages are named `@repo/*` and are JIT TypeScript: they export `src/*.ts` directly and are listed in the app's `transpilePackages`. None has a build step; turbo `typecheck`, `lint` and `test` depend on `^build` as a transit node, so cached runs still see changes in internal dependencies. Workspace deps use `workspace:*`; shared versions live in the `catalog:` in `pnpm-workspace.yaml`. The public SDK, `@planeward/sdk`, comes from npm; its source is https://github.com/planeward/sdk.
+
+Docs: `docs/how-it-works.md` (architecture), `docs/adding-an-app.md`, `docs/deploying-to-vercel.md`. Platform behavior (token claims, scopes, endpoints, webhook events) is documented at https://docs.planeward.com/docs/apps; check it before assuming an API.
 
 ## Commands
 
@@ -20,6 +23,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm format:check        # or format:write
+pnpm db:up               # start each app's Postgres (docker compose)
 pnpm db:generate         # after schema changes
 pnpm db:migrate
 pnpm --filter <pkg> <script>

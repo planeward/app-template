@@ -1,5 +1,8 @@
-# Local development only. Postgres runs on host port 5433 so it does not clash
-# with a Planeward checkout on 5432.
+# Local development only: this app's own Postgres. Each app in `apps/*` has its
+# own compose.yml; when copying an app, give it a unique `name` and host port.
+# 5433 keeps clear of a Planeward checkout on 5432.
+name: planeward-app-web
+
 services:
   postgres:
     image: postgres:18-alpine

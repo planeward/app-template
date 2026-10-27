@@ -67,7 +67,8 @@ export default async function SetupPage() {
         <CardHeader>
           <CardTitle>Environment</CardTitle>
           <CardDescription>
-            Read from the repo root <code>.env</code>. Values are never shown.
+            Read from this app’s <code>.env</code> locally, or your host’s
+            environment variables when deployed. Values are never shown.
             {missing > 0
               ? ` ${missing} missing: copy .env.example to .env and fill it in.`
               : " Everything is set."}
@@ -141,7 +142,7 @@ export default async function SetupPage() {
         <CardContent>
           <ol className="flex list-decimal flex-col gap-2 pl-5 text-sm">
             <li>
-              Start Postgres with <code>docker compose up -d</code> and run{" "}
+              Start Postgres with <code>pnpm db:up</code> and run{" "}
               <code>pnpm db:migrate</code>.
             </li>
             <li>

@@ -3,11 +3,11 @@ import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "drizzle-kit";
 
-// drizzle-kit does not load env files. Fall back to the repo root `.env`
-// when DATABASE_URL is not already set (turbo passes it through).
-const rootEnv = fileURLToPath(new URL("../../.env", import.meta.url));
-if (!process.env.DATABASE_URL && existsSync(rootEnv)) {
-  process.loadEnvFile(rootEnv);
+// drizzle-kit does not load env files. Fall back to this app's `.env` when
+// DATABASE_URL is not already set (turbo, Vercel).
+const appEnv = fileURLToPath(new URL(".env", import.meta.url));
+if (!process.env.DATABASE_URL && existsSync(appEnv)) {
+  process.loadEnvFile(appEnv);
 }
 
 export default defineConfig({

@@ -9,7 +9,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "env": [
         "NODE_ENV",
         "DATABASE_URL",
@@ -44,6 +44,9 @@
     },
     "format:check": {},
     "format:write": {
+      "cache": false
+    },
+    "db:up": {
       "cache": false
     },
     "db:generate": {
