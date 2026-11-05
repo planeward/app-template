@@ -6,7 +6,7 @@ packages:
 verifyDepsBeforeRun: false
 
 catalog:
-  "@planeward/sdk": ^0.2.0
+  "@planeward/sdk": ^0.2.1
   "@types/node": ^26.5.1
   "@types/react": 19.3.0
   "@types/react-dom": 19.3.0
