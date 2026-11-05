@@ -5,6 +5,8 @@ import {
   PLANEWARD_DELIVERY_HEADER,
   PLANEWARD_SIGNATURE_HEADER,
   verifyPlanewardWebhook,
+  type AppInstalledData,
+  type AppUninstalledData,
   type AppWebhookEnvelope,
 } from "@planeward/sdk/server";
 
@@ -54,22 +56,21 @@ export const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 
 const isoDate = z.iso.datetime({ offset: true });
 
+// Runtime checks for the events this handler persists; the shapes come from
+// the SDK's typed webhook union.
 const installedData = z.object({
   installationId: z.string().min(1),
   workspaceId: z.string().min(1),
   workspaceName: z.string(),
   grantedPermissions: z.array(z.string()),
   installedAt: isoDate,
-});
+}) satisfies z.ZodType<AppInstalledData>;
 
 const uninstalledData = z.object({
   installationId: z.string().min(1),
   workspaceId: z.string().min(1),
   uninstalledAt: isoDate,
-});
-
-export type AppInstalledData = z.infer<typeof installedData>;
-export type AppUninstalledData = z.infer<typeof uninstalledData>;
+}) satisfies z.ZodType<AppUninstalledData>;
 
 /**
  * Next row for `app.installed`. A stored uninstall at or after this install

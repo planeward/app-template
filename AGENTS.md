@@ -12,6 +12,8 @@ Conventions for AI agents working in this repo (a Planeward Community App templa
 
 Internal packages are named `@repo/*` and are JIT TypeScript: they export `src/*.ts` directly and are listed in the app's `transpilePackages`. None has a build step; turbo `typecheck`, `lint` and `test` depend on `^build` as a transit node, so cached runs still see changes in internal dependencies. Workspace deps use `workspace:*`; shared versions live in the `catalog:` in `pnpm-workspace.yaml`. The public SDK, `@planeward/sdk`, comes from npm; its source is https://github.com/planeward/sdk.
 
+`apps/web/planeward.json` is the manifest for the optional local emulator (`pnpm dev:emulator`, a local-only `planeward` CLI that is not on npm); `pnpm dev` must keep working without it.
+
 Docs: `docs/how-it-works.md` (architecture), `docs/adding-an-app.md`, `docs/deploying-to-vercel.md`. Platform behavior (token claims, scopes, endpoints, webhook events) is documented at https://docs.planeward.com/docs/apps; check it before assuming an API.
 
 ## Commands
@@ -35,7 +37,7 @@ After editing files, run Prettier on the changed paths: `pnpm exec prettier --wr
 
 - **Every API route calls `requireViewer(request)`** from `@/lib/planeward` first (`{ role: "admin" }` for staff-only routes). Return its `response` when `ok` is false.
 - **Scope data by claims only.** `installationId`, `channelId` and the author (`sub`) come from the verified viewer, never from the request body, query or headers. The one deliberate exception is an admin choosing a _target_ channel (`/api/announce`): the installation still comes from the claims, and Planeward enforces which channels the app may post to.
-- Use `planewardForViewer(viewer)` (also from `@/lib/planeward`) for Planeward API calls; never build a client from a client-supplied installation id.
+- Use `planewardForViewer(viewer)` (also from `@/lib/planeward`) for Planeward API calls, and `planewardForInstallation(envelope.installationId)` inside webhook handlers; never build a client from a client-supplied installation id.
 - Webhooks go through `handlePlanewardWebhook`; do not process a payload before signature verification.
 - Secrets (`PLANEWARD_APP_SECRET`, `PLANEWARD_WEBHOOK_SECRET`) are server-only. Read env through `@repo/planeward/env` (and `DATABASE_URL` through `@/db/env`), not `process.env` in app code (exception: `apps/web/src/lib/env-status.ts`, which only reports set/unset for the setup page).
 - Do not add `X-Frame-Options` or rely on cookies: the app runs in a cross-origin iframe.

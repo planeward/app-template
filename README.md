@@ -21,7 +21,7 @@ Each folder in `apps/` is one self-contained Planeward app with its own credenti
 
 Requires Node 24+, pnpm 11, Docker and a tunnel ([cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) or [ngrok](https://ngrok.com/download)).
 
-Planeward is hosted at `https://app.planeward.com`. It loads your app in an iframe and sends it webhooks, so it must reach your app over public `https`; `localhost` URLs are rejected. During development, expose your dev server through a tunnel.
+Planeward is hosted at `https://app.planeward.com`. It loads your app in an iframe and sends it webhooks. Webhooks need a public `https` URL, so during development expose your dev server through a tunnel. To try only the iframe in your own workspace, you can skip the tunnel and [register `http://localhost` URLs](#testing-in-your-own-workspace-without-a-tunnel).
 
 1. Install and start the app:
 
@@ -57,20 +57,41 @@ Planeward is hosted at `https://app.planeward.com`. It loads your app in an ifra
    - Experience URL: `https://abc-123.trycloudflare.com/experience`
    - Dashboard URL: `https://abc-123.trycloudflare.com/dashboard`
    - Webhook URL: `https://abc-123.trycloudflare.com/api/webhooks/planeward`
-   - Both scopes: **Community — read members** (`COMMUNITY_MEMBERS_READ`) and **Community — post messages as the app** (`COMMUNITY_MESSAGES_WRITE`).
+   - Scopes:
+     - **Community — read members** (`COMMUNITY_MEMBERS_READ`): the dashboard member list and `community.membership.*` webhooks.
+     - **Community — post messages as the app** (`COMMUNITY_MESSAGES_WRITE`): "Announce as the app".
+     - **Community — read public channels and messages** (`COMMUNITY_MESSAGES_READ`): `community.message.created` webhooks for the First post badge.
+     - **Community — manage and award badges** (`COMMUNITY_BADGES_WRITE`): creating and awarding the First post badge.
 2. Copy the app ID, app secret and webhook secret into `apps/web/.env` (`PLANEWARD_APP_ID`, `PLANEWARD_APP_SECRET`, `PLANEWARD_WEBHOOK_SECRET`). They are shown once; rotate them from the app's menu if lost. Restart `pnpm dev`.
 3. Install it from the install link (or **Install into this workspace**). Installing needs a workspace with **Community** turned on (Business plan or higher).
 4. In **Community › Apps**, add it as a channel. Members see it in the community sidebar; staff open the dashboard from **Community › Apps**.
 
 Viewer tokens are verified against `https://app.planeward.com/api/auth/jwks` and API calls go to Planeward with your app secret. Both are outbound requests, so they work from your machine.
 
+### Testing in your own workspace without a tunnel
+
+An app installed only in its publisher's own workspace may use `http://localhost` URLs. Register `http://localhost:3005/experience` and `http://localhost:3005/dashboard`, install it into your own workspace, and Planeward loads it straight from your dev server. Planeward can't reach `localhost` to deliver webhooks, so the Webhook URL still needs a tunnel (or leave it empty and the badge example won't run).
+
 Use one Planeward app per environment, e.g. "My App (dev)" pointing at your tunnel and "My App" pointing at production. A token issued for a different app fails with `PlanewardTokenAudienceError`.
 
 ### Tunnel tips
 
 - Quick tunnels get a new URL every run, so you would edit the app's URLs (in its menu, **Edit**) and `ALLOWED_DEV_ORIGINS` each time. For a stable URL, use a named Cloudflare tunnel on your own domain or a reserved ngrok domain.
-- Webhooks (`app.installed`, `app.uninstalled`, `community.membership.*`) are retried after 1 min, 10 min, 1 h and 6 h if your tunnel is down, so events sent while it was offline arrive later.
+- Webhooks (`app.installed`, `app.uninstalled`, `community.membership.*`, `community.message.created`, …) are retried after 1 min, 10 min, 1 h and 6 h if your tunnel is down, so events sent while it was offline arrive later.
 - Only run the tunnel while you need it, and never commit `.env`.
+
+## Local emulator (optional)
+
+`planeward dev` runs your app inside a local emulator of the Planeward host, API and webhooks at `http://127.0.0.1:4600`, so you can switch viewers, post as a member and receive signed webhooks without a Planeward account or tunnel. It reads [`apps/web/planeward.json`](apps/web/planeward.json) (paths, scopes, dev command) and starts `next dev` with local `PLANEWARD_*` credentials, which override your `.env`.
+
+The CLI isn't published; install it from a local checkout of the Planeward CLI (`pnpm install && pnpm build && pnpm link --global` in that folder). Then:
+
+```bash
+pnpm db:up && pnpm db:migrate
+pnpm dev:emulator
+```
+
+Emulator state lives in `apps/web/.planeward/` (gitignored). `pnpm dev` is unchanged and doesn't need the CLI.
 
 ## Deploying
 
@@ -97,6 +118,7 @@ Planeward loads your app in an iframe and hands it a short-lived **viewer token*
 ## Customizing
 
 - Replace the Board example (`apps/web` experience, `/api/posts`, and the `posts` table) with your feature. Keep `requireViewer` and claims-derived ids in every route.
+- The badge example awards a "First post" badge on each member's first message: the webhook route's `onEvent` narrows `community.message.created` from the SDK's typed webhook union, records the first post per installation and member in `first_posts`, then calls `community.badges.upsert` and `community.members.badges.award` ([`src/lib/first-post-badge.ts`](apps/web/src/lib/first-post-badge.ts)). Remove it with its table and scopes if you don't need it.
 - Add tables in `apps/web/src/db/schema.ts`, then run `pnpm db:generate` and `pnpm db:migrate`.
 - Each app owns its database: `@repo/planeward/server` never touches it. `apps/web/src/lib/planeward.ts` passes a Drizzle store to `createPlanewardServer`, which returns `requireViewer` and `handlePlanewardWebhook`.
 - To add another app, copy `apps/web` and give it its own package name, port, Compose `name` and Postgres port, and its own Planeward app: [Adding an app](docs/adding-an-app.md).
@@ -132,6 +154,7 @@ The SDK is [`@planeward/sdk`](https://www.npmjs.com/package/@planeward/sdk) ([so
 | Command                                | What it does                          |
 | -------------------------------------- | ------------------------------------- |
 | `pnpm dev`                             | Run everything in dev mode            |
+| `pnpm dev:emulator`                    | Run the app in the local emulator     |
 | `pnpm build`                           | Build the app                         |
 | `pnpm typecheck` / `lint` / `test`     | Checks across the workspace           |
 | `pnpm format:check` / `format:write`   | Prettier                              |

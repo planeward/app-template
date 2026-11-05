@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 
 import { getTableConfig } from "drizzle-orm/pg-core";
 
-import { installations, posts, webhookDeliveries } from "./schema";
+import { firstPosts, installations, posts, webhookDeliveries } from "./schema";
 
 function columnNames(table: Parameters<typeof getTableConfig>[0]) {
   return getTableConfig(table)
@@ -99,5 +99,34 @@ describe("posts", () => {
       ),
       ["installation_id", "channel_id", "created_at"]
     );
+  });
+});
+
+describe("first_posts", () => {
+  const config = getTableConfig(firstPosts);
+
+  it("uses snake_case names", () => {
+    assert.equal(config.name, "first_posts");
+    assert.deepEqual(columnNames(firstPosts), [
+      "badge_awarded_at",
+      "installation_id",
+      "member_id",
+      "message_id",
+      "posted_at",
+    ]);
+  });
+
+  it("keeps one row per (installation_id, member_id)", () => {
+    assert.equal(config.primaryKeys.length, 1);
+    assert.deepEqual(
+      config.primaryKeys[0]?.columns.map((column) => column.name),
+      ["installation_id", "member_id"]
+    );
+  });
+
+  it("allows a null badge_awarded_at", () => {
+    const column = config.columns.find((c) => c.name === "badge_awarded_at");
+    assert.equal(column?.notNull, false);
+    assert.equal(column?.getSQLType(), "timestamp with time zone");
   });
 });

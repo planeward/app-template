@@ -91,7 +91,7 @@ sequenceDiagram
   opt Admin action, e.g. Announce as the app
     Server->>PW: POST /api/v1/community/channels/{id}/messages (app secret)
   end
-  Note over PW,Server: Separately, Planeward POSTs signed webhooks<br/>(app.installed, app.uninstalled, community.membership.*)<br/>to /api/webhooks/planeward, which verifies, dedupes and stores them.
+  Note over PW,Server: Separately, Planeward POSTs signed webhooks<br/>(app.installed, app.uninstalled, community.*)<br/>to /api/webhooks/planeward, which verifies, dedupes and stores them.
 ```
 
 1. **Handshake.** The page loads in the iframe and `PlanewardProvider` does a `postMessage` handshake with the host. The host returns the context, theme and a short-lived **viewer token**, a JWT signed by Planeward with `aud` set to your app id. See [postMessage protocol](https://docs.planeward.com/docs/apps/protocol).
@@ -99,7 +99,7 @@ sequenceDiagram
 3. **`requireViewer`.** Every API route starts with `requireViewer(request)` from `@/lib/planeward` (`{ role: "admin" }` for staff-only routes). It verifies the token against `PLANEWARD_BASE_URL` and `PLANEWARD_APP_ID`, rejects installations recorded as uninstalled, and returns the claims or a 401/403 response.
 4. **Scoping.** `installationId`, `channelId` and the author (`sub`) come **only** from the verified claims. All data (for example the Board `posts`) is read and written by those ids, so one community can never see another's data.
 5. **API calls.** `planewardForViewer(viewer)` builds a Planeward API client for the claims' installation, authenticated with `PLANEWARD_APP_SECRET`. What it can do depends on the scopes the installer approved. See [API access](https://docs.planeward.com/docs/apps/api).
-6. **Webhooks.** `/api/webhooks/planeward` calls `handlePlanewardWebhook`. It verifies the signature on the raw body, dedupes on `x-planeward-delivery`, records installs and uninstalls, then calls your `onEvent`. If your handler throws, the delivery is released so Planeward's retry is processed again. See [App webhooks](https://docs.planeward.com/docs/apps/webhooks).
+6. **Webhooks.** `/api/webhooks/planeward` calls `handlePlanewardWebhook`. It verifies the signature on the raw body, dedupes on `x-planeward-delivery`, records installs and uninstalls, then calls your `onEvent` with an envelope typed as a union on `event` (`switch (envelope.event)` narrows `data`). The template's `onEvent` awards a "First post" badge on `community.message.created`. If your handler throws, the delivery is released so Planeward's retry is processed again. See [App webhooks](https://docs.planeward.com/docs/apps/webhooks).
 
 ## Storage
 
@@ -112,7 +112,7 @@ sequenceDiagram
 | `claimDelivery`      | `webhook_deliveries` | Skips a delivery that was already handled (Planeward retries with the same id) |
 | `releaseDelivery`    | `webhook_deliveries` | Lets a failed delivery be processed again on retry                             |
 
-Your own tables (like the Board's `posts`) sit next to them. After changing the schema, run `pnpm db:generate` to create a migration.
+Your own tables (like the Board's `posts` and the badge example's `first_posts`) sit next to them. After changing the schema, run `pnpm db:generate` to create a migration.
 
 ## Env and config
 

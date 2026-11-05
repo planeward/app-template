@@ -6,6 +6,7 @@
   "prettier": "@repo/prettier-config/base",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:emulator": "pnpm --filter @repo/web dev:emulator",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

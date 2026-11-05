@@ -25,6 +25,14 @@ const SCOPES = [
     name: "COMMUNITY_MESSAGES_WRITE",
     use: "“Announce as the app” on the member view",
   },
+  {
+    name: "COMMUNITY_MESSAGES_READ",
+    use: "community.message.created webhooks for the First post badge",
+  },
+  {
+    name: "COMMUNITY_BADGES_WRITE",
+    use: "Create and award the First post badge",
+  },
 ];
 
 async function appOrigin(): Promise<string> {

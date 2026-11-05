@@ -45,10 +45,12 @@ Members who can see that category now see {{APP_NAME}} in the sidebar. Staff can
 
 ## Permissions we ask for
 
-| Permission                               | Why {{APP_NAME}} needs it                                                      |
-| ---------------------------------------- | ------------------------------------------------------------------------------ |
-| **Community — read members**             | {{WHY_READ_MEMBERS}} (for example: show the member list on the dashboard.)     |
-| **Community — post messages as the app** | {{WHY_POST_MESSAGES}} (for example: post announcements to a channel you pick.) |
+| Permission                                        | Why {{APP_NAME}} needs it                                                      |
+| ------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Community — read members**                      | {{WHY_READ_MEMBERS}} (for example: show the member list on the dashboard.)     |
+| **Community — post messages as the app**          | {{WHY_POST_MESSAGES}} (for example: post announcements to a channel you pick.) |
+| **Community — read public channels and messages** | {{WHY_READ_MESSAGES}} (for example: notice a member's first post.)             |
+| **Community — manage and award badges**           | {{WHY_AWARD_BADGES}} (for example: award a "First post" badge.)                |
 
 You can untick a permission when installing. {{WHAT_STOPS_WORKING_WITHOUT_IT}}
 
@@ -61,7 +63,9 @@ flowchart LR
   store[("{{APP_NAME}} storage<br/>{{HOSTING_AND_REGION}}")]
   community -->|"viewer's name, avatar,<br/>member or staff, channel"| app
   community -.->|"member list, no emails<br/>(if you allow it)"| app
+  community -.->|"messages in channels everyone<br/>can see (if you allow it)"| app
   app -.->|"posts with an APP badge<br/>(if you allow it)"| community
+  app -.->|"badges on member profiles<br/>(if you allow it)"| community
   app --> store
 ```
 
