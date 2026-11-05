@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
-// The dev server only serves its assets to `localhost`. When testing through a
-// tunnel (see README), list the tunnel hostname(s), comma-separated.
+// `next dev` serves its dev resources (`/_next/*`, HMR) only to `localhost`.
+// If you load the app UI through a tunnel (docs/going-live.md), list the
+// tunnel hostname(s), comma-separated. The emulator, localhost URLs and a
+// tunnel used only for webhooks don't need it.
 const allowedDevOrigins = (process.env.ALLOWED_DEV_ORIGINS ?? "")
   .split(",")
   .map((origin) => origin.trim())

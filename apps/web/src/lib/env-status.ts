@@ -20,3 +20,21 @@ export function envStatus(): EnvStatus[] {
 export function isConfigured(): boolean {
   return envStatus().every((entry) => entry.set);
 }
+
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/**
+ * The emulator's URL when `pnpm dev:emulator` started this app, otherwise
+ * `null`. It sets `PLANEWARD_BASE_URL` to a loopback address and a
+ * `pwa_local_` app secret; checking both tells it apart from a Planeward
+ * checkout running on localhost. Never returns the secret.
+ */
+export function emulatorUrl(): string | null {
+  const baseUrl = process.env.PLANEWARD_BASE_URL?.trim();
+  const secret = process.env.PLANEWARD_APP_SECRET?.trim() ?? "";
+  if (!baseUrl || !URL.canParse(baseUrl) || !secret.startsWith("pwa_local_")) {
+    return null;
+  }
+  const url = new URL(baseUrl);
+  return LOOPBACK_HOSTS.has(url.hostname) ? url.origin : null;
+}

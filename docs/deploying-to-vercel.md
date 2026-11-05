@@ -23,7 +23,7 @@ The examples below use `apps/web`. For another app, use its folder.
 
 ## 1. Create the production Planeward app
 
-Use a separate Planeward app for production, not the one pointing at your tunnel. A token issued for one app is rejected by the other.
+Use a separate Planeward app for production, not your dev app with localhost URLs ([Going live](going-live.md)). A token issued for one app is rejected by the other.
 
 1. In **Settings › Apps › Developer**, create an app with your production domain: a custom domain, or `https://<project-name>.vercel.app`. If the domain changes later, edit the URLs from the app's menu (**Edit**).
    - Experience URL: `https://<domain>/experience`
@@ -50,7 +50,7 @@ Use any Postgres that Vercel can reach. In Vercel, **Storage** offers Postgres p
    | `DATABASE_URL`             | From step 2 (set for you if you connected Neon)   |
    | `PLANEWARD_BASE_URL`       | Optional, defaults to `https://app.planeward.com` |
 
-   Leave `ALLOWED_DEV_ORIGINS` unset; it's for local tunnels only. `next build` checks the required variables, so a deploy without them fails.
+   Leave `ALLOWED_DEV_ORIGINS` unset; it only affects `next dev`. `next build` checks the required variables, so a deploy without them fails.
 
 4. Deploy. The production build migrates the database first.
 
@@ -72,7 +72,7 @@ Changes to environment variables only apply to new deployments. After rotating a
 
 ## Notes
 
-- **Previews are behind a login.** Vercel's Standard Protection, the recommended setting, requires a Vercel login on every URL except production domains. Planeward can't load a protected URL in its iframe or deliver webhooks to it, so register the production domain. To try a change inside Planeward before production, run it locally through a tunnel.
+- **Previews are behind a login.** Vercel's Standard Protection, the recommended setting, requires a Vercel login on every URL except production domains. Planeward can't load a protected URL in its iframe or deliver webhooks to it, so register the production domain. To try a change inside Planeward before production, run it locally with your dev app ([Going live](going-live.md#test-in-your-own-workspace)).
 - **Keep the app frameable.** Vercel doesn't add `X-Frame-Options`. Don't add it, or a restrictive `frame-ancestors`, yourself: communities can run on custom domains.
 - **One project per app.** Each app folder gets its own Vercel project, Root Directory and environment variables. When the repo is connected to GitHub, Vercel skips building apps a commit didn't change, as long as every workspace package has a unique `name`.
 - **Region.** Run functions in the same region as the database (**Settings › Functions**).

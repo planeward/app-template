@@ -34,7 +34,7 @@ Each folder in `apps/` is a separate Planeward app. Nothing app-specific lives a
 | `compose.yml`                                      | Its own local Postgres, with its own Compose project `name`, host port and volume                      |
 | `src/db`, `drizzle/`                               | Its own schema and migrations                                                                          |
 | `src/lib/planeward.ts`                             | Passes its database to `createPlanewardServer`                                                         |
-| Port in `package.json`                             | `pnpm dev` runs every app at once, so each needs its own port (and its own tunnel)                     |
+| Port in `package.json` and `planeward.json`        | `pnpm dev` runs every app at once, so each needs its own port                                          |
 | `vercel.json`                                      | Deployed as its own Vercel project with Root Directory `apps/<name>` ([guide](deploying-to-vercel.md)) |
 
 Shared code lives in `packages/`. `@repo/planeward` never imports a database. It gets storage through `createPlanewardServer(store)`, which each app calls once.
@@ -62,7 +62,35 @@ flowchart LR
   pw -->|"signed webhooks"| server
 ```
 
-In development, Planeward reaches your machine through a tunnel: `https://<tunnel>` forwards to `http://localhost:3005`, which serves both the iframe pages and the API routes. In production, it's your deployed URL.
+In production, "your app" is your deployed URL. In development it's `http://localhost:3005`, and Planeward is either the local emulator or hosted Planeward:
+
+- **Emulator** (`pnpm dev:emulator`): `planeward dev` plays every Planeward part of the diagram on `http://127.0.0.1:4600` (see below).
+- **Hosted Planeward, your own workspace** (`pnpm dev`): register `http://localhost:3005` Experience and Dashboard URLs. The member's browser loads the iframe from your machine, and token verification and API calls are outbound, so they work too. Only webhooks need a public `https` URL: run a tunnel for the webhook URL, or test webhooks in the emulator ([Going live](going-live.md#webhooks)).
+
+## The local emulator
+
+```mermaid
+flowchart LR
+  subgraph emulator["planeward dev (127.0.0.1:4600)"]
+    hostui["Host UI<br/>viewer switcher · theme<br/>Activity · Requests · Webhooks"]
+    api["Mock v1 API + JWKS<br/>scopes from planeward.json"]
+    sender["Webhook sender"]
+  end
+
+  subgraph yours["next dev (localhost:3005)"]
+    frame["/experience · /dashboard<br/>(iframe)"]
+    server["API routes + webhook route"]
+    db[("Postgres")]
+  end
+
+  hostui <-->|"postMessage<br/>viewer token + theme"| frame
+  frame -->|"Bearer viewer token"| server
+  server --> db
+  server -->|"verify token (JWKS)<br/>API calls (local secret)"| api
+  sender -->|"signed webhooks"| server
+```
+
+`planeward dev` reads `apps/web/planeward.json`, then starts the app's `dev.command` (`next dev --port 3005`) with `PLANEWARD_BASE_URL=http://127.0.0.1:4600` and local `PLANEWARD_APP_ID`, `PLANEWARD_APP_SECRET` and `PLANEWARD_WEBHOOK_SECRET`. Next.js never overrides process env from `.env`, so these win and the app's code runs unchanged: the same `requireViewer`, `planewardForViewer` and `handlePlanewardWebhook` paths as in production. The emulator enforces the manifest's `scopes` (a missing one is a 403 with `missingScope`) and keeps its state in `apps/web/.planeward/`. Where it differs from production is listed in the [CLI's README](https://github.com/planeward/cli#where-it-diverges-from-production).
 
 ## One request, step by step
 
@@ -123,7 +151,7 @@ Your own tables (like the Board's `posts` and the badge example's `first_posts`)
 | `PLANEWARD_WEBHOOK_SECRET` | Yes      | Signing secret for `x-planeward-signature`. Server only                         |
 | `DATABASE_URL`             | Yes      | This app's Postgres                                                             |
 | `PLANEWARD_BASE_URL`       | No       | Defaults to `https://app.planeward.com`                                         |
-| `ALLOWED_DEV_ORIGINS`      | Dev only | Tunnel hostname(s), comma-separated, no `https://`. Leave unset in production   |
+| `ALLOWED_DEV_ORIGINS`      | Dev only | Tunnel hostname(s) when loading the app UI through a tunnel. Unset otherwise    |
 
 The values come from a different place locally and on Vercel:
 
@@ -134,6 +162,8 @@ The values come from a different place locally and on Vercel:
 | drizzle-kit | `drizzle.config.ts` loads `.env` when `DATABASE_URL` isn't already set        | Uses `DATABASE_URL` from the build env                                            |
 | Turborepo   | Hashes `.env*` into `build`; passes the variables through to `dev` and `db:*` | Not involved: `vercel.json` runs the app's own `pnpm db:migrate` and `pnpm build` |
 | Postgres    | `pnpm db:up` starts the app's `compose.yml`                                   | Your provider (for example Neon from the Vercel Marketplace)                      |
+
+`pnpm dev:emulator` injects the four `PLANEWARD_*` variables, so locally it only needs `DATABASE_URL` from `.env`.
 
 `next build` validates the required variables (except when `SKIP_ENV_VALIDATION=1`, which CI uses), so a deploy fails fast when one is missing.
 
