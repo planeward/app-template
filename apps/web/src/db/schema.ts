@@ -1,4 +1,11 @@
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 /** One row per Planeward installation, keyed by installationId. */
 export const installations = pgTable("installations", {
@@ -43,8 +50,27 @@ export const posts = pgTable(
   ]
 );
 
+/**
+ * Badge example: each member's first community message per installation, from
+ * `community.message.created`. `badgeAwardedAt` is set once the "First post"
+ * badge is awarded, so a retried delivery finishes the award without
+ * re-running it.
+ */
+export const firstPosts = pgTable(
+  "first_posts",
+  {
+    installationId: text("installation_id").notNull(),
+    memberId: text("member_id").notNull(),
+    messageId: text("message_id").notNull(),
+    postedAt: timestamp("posted_at", { withTimezone: true }).notNull(),
+    badgeAwardedAt: timestamp("badge_awarded_at", { withTimezone: true }),
+  },
+  (table) => [primaryKey({ columns: [table.installationId, table.memberId] })]
+);
+
 export type Installation = typeof installations.$inferSelect;
 export type NewInstallation = typeof installations.$inferInsert;
 export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
+export type FirstPost = typeof firstPosts.$inferSelect;

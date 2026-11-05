@@ -279,7 +279,7 @@ describe("processPlanewardWebhook", () => {
     const response = await send(
       fake.store,
       webhookRequest({
-        event: "community.membership.created",
+        event: "community.membership.granted",
         data: { id: "cm_1" },
         timestamp: "2026-10-01T10:00:00.000Z",
         installationId: "inst_1",
@@ -288,7 +288,7 @@ describe("processPlanewardWebhook", () => {
       { onEvent: async (envelope) => void seen.push(envelope.event) }
     );
     assert.equal(response.status, 204);
-    assert.deepEqual(seen, ["community.membership.created"]);
+    assert.deepEqual(seen, ["community.membership.granted"]);
     assert.equal(fake.rows.size, 0);
   });
 });

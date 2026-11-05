@@ -1,0 +1,17 @@
+{
+  "name": "Planeward Community App",
+  "slug": "app-template",
+  "experiencePath": "/experience",
+  "dashboardPath": "/dashboard",
+  "webhookPath": "/api/webhooks/planeward",
+  "scopes": [
+    "COMMUNITY_MEMBERS_READ",
+    "COMMUNITY_MESSAGES_WRITE",
+    "COMMUNITY_MESSAGES_READ",
+    "COMMUNITY_BADGES_WRITE"
+  ],
+  "dev": {
+    "command": "next dev --port 3005",
+    "url": "http://localhost:3005"
+  }
+}

@@ -30,15 +30,22 @@ export type {
 } from "./webhook";
 
 /**
- * Planeward API client acting on the viewer's installation. The installation
- * id comes from the verified token only, never from request input.
+ * Planeward API client acting on one installation. Pass only an id from a
+ * verified viewer token or a signed webhook, never one from request input.
  */
-export function planewardForViewer(viewer: Viewer): PlanewardClient {
+export function planewardForInstallation(
+  installationId: string
+): PlanewardClient {
   return createPlanewardClient({
     secret: env.PLANEWARD_APP_SECRET,
-    installationId: viewer.installationId,
+    installationId,
     baseUrl: env.PLANEWARD_BASE_URL,
   });
+}
+
+/** Planeward API client acting on the viewer's installation. */
+export function planewardForViewer(viewer: Viewer): PlanewardClient {
+  return planewardForInstallation(viewer.installationId);
 }
 
 /** Storage the server helpers need. Each app backs it with its own database. */

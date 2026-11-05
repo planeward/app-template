@@ -19,6 +19,9 @@ build/
 .env*
 !.env.example
 
+# planeward dev (local emulator state)
+.planeward/
+
 # misc
 .DS_Store
 *.pem

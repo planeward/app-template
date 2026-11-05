@@ -4,7 +4,10 @@ import { createPlanewardServer } from "@repo/planeward/server";
 
 import { db, installations, webhookDeliveries } from "@/db";
 
-export { planewardForViewer } from "@repo/planeward/server";
+export {
+  planewardForInstallation,
+  planewardForViewer,
+} from "@repo/planeward/server";
 
 /** `requireViewer` and `handlePlanewardWebhook`, backed by this app's database. */
 export const { requireViewer, handlePlanewardWebhook } = createPlanewardServer({
