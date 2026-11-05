@@ -19,6 +19,7 @@ catalog:
   eslint: ^10.13.0
   lucide-react: ^1.61.0
   next: ^16.4.3
+  planeward: ^0.1.1
   prettier: ^3.9.10
   react: 19.3.1
   react-dom: 19.3.1
@@ -41,3 +42,4 @@ allowBuilds:
 # First-party packages: install new releases right away.
 minimumReleaseAgeExclude:
   - "@planeward/*"
+  - planeward

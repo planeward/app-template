@@ -84,14 +84,22 @@ Use one Planeward app per environment, e.g. "My App (dev)" pointing at your tunn
 
 `planeward dev` runs your app inside a local emulator of the Planeward host, API and webhooks at `http://127.0.0.1:4600`, so you can switch viewers, post as a member and receive signed webhooks without a Planeward account or tunnel. It reads [`apps/web/planeward.json`](apps/web/planeward.json) (paths, scopes, dev command) and starts `next dev` with local `PLANEWARD_*` credentials, which override your `.env`.
 
-The CLI isn't published; install it from a local checkout of the Planeward CLI (`pnpm install && pnpm build && pnpm link --global` in that folder). Then:
+The [`planeward`](https://www.npmjs.com/package/planeward) CLI ([source](https://github.com/planeward/cli)) is a dev dependency of `apps/web`, so `pnpm install` sets it up:
 
 ```bash
 pnpm db:up && pnpm db:migrate
 pnpm dev:emulator
 ```
 
-Emulator state lives in `apps/web/.planeward/` (gitignored). `pnpm dev` is unchanged and doesn't need the CLI.
+The emulator opens in your browser. From there you can:
+
+- switch the viewer (any seeded member, member or admin) and toggle Experience and Dashboard;
+- post, react, complete a lesson, RSVP or submit a form as a member, and see the webhooks your app receives;
+- follow every API call in **Requests** (a missing scope shows which one to add to `planeward.json`) and every delivery in **Webhooks**, with Redeliver.
+
+From another terminal, `pnpm --filter @repo/web exec planeward trigger community.message.created` sends a single webhook. Press `r` in the emulator terminal to reset the seeded data.
+
+Emulator state, including the local signing key and secrets, lives in `apps/web/.planeward/` (gitignored). `pnpm dev` is unchanged and doesn't use the emulator; use it with your real `.env` to test against Planeward.
 
 ## Deploying
 

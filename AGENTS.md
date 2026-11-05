@@ -12,7 +12,7 @@ Conventions for AI agents working in this repo (a Planeward Community App templa
 
 Internal packages are named `@repo/*` and are JIT TypeScript: they export `src/*.ts` directly and are listed in the app's `transpilePackages`. None has a build step; turbo `typecheck`, `lint` and `test` depend on `^build` as a transit node, so cached runs still see changes in internal dependencies. Workspace deps use `workspace:*`; shared versions live in the `catalog:` in `pnpm-workspace.yaml`. The public SDK, `@planeward/sdk`, comes from npm; its source is https://github.com/planeward/sdk.
 
-`apps/web/planeward.json` is the manifest for the optional local emulator (`pnpm dev:emulator`, a local-only `planeward` CLI that is not on npm); `pnpm dev` must keep working without it.
+`apps/web/planeward.json` is the manifest for the optional local emulator (`pnpm dev:emulator`, which runs the `planeward` CLI from npm, a dev dependency of `apps/web`; source https://github.com/planeward/cli). Keep its `scopes` in step with what the app calls, and its `dev.command`/`dev.url` in step with the `dev` script. `pnpm dev` must keep working without the emulator.
 
 Docs: `docs/how-it-works.md` (architecture), `docs/adding-an-app.md`, `docs/deploying-to-vercel.md`. Platform behavior (token claims, scopes, endpoints, webhook events) is documented at https://docs.planeward.com/docs/apps; check it before assuming an API.
 

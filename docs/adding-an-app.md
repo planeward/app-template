@@ -15,12 +15,13 @@ This copies `.env.example` but not your `.env`, so no credentials from the other
 
 These must be unique across apps:
 
-| File               | Change                                                                        |
-| ------------------ | ----------------------------------------------------------------------------- |
-| `package.json`     | `"name": "@repo/polls"`, and a free port in `dev` and `start` (`--port 3006`) |
-| `compose.yml`      | `name: planeward-app-polls`, and a free host port (`"5434:5432"`)             |
-| `.env.example`     | The same host port in `DATABASE_URL` (`localhost:5434`)                       |
-| `src/app/page.tsx` | The port in the setup page's tunnel instructions (`3006`)                     |
+| File               | Change                                                                          |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `package.json`     | `"name": "@repo/polls"`, and a free port in `dev` and `start` (`--port 3006`)   |
+| `compose.yml`      | `name: planeward-app-polls`, and a free host port (`"5434:5432"`)               |
+| `.env.example`     | The same host port in `DATABASE_URL` (`localhost:5434`)                         |
+| `src/app/page.tsx` | The port in the setup page's tunnel instructions (`3006`)                       |
+| `planeward.json`   | `name`, `slug` (`polls`), the port in `dev.command` and `dev.url`, and `scopes` |
 
 Unique package names also let Vercel skip building apps a commit didn't touch.
 

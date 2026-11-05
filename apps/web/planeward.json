@@ -1,4 +1,5 @@
 {
+  "$schema": "./node_modules/planeward/schema/planeward.schema.json",
   "name": "Planeward Community App",
   "slug": "app-template",
   "experiencePath": "/experience",
